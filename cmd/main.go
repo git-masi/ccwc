@@ -24,6 +24,6 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Printf("%d %s", info.Size(), p)
+		fmt.Printf("%d %s\n", info.Size(), p)
 	}
 }

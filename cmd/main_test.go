@@ -70,7 +70,7 @@ func TestApp(t *testing.T) {
 			t.Fatalf("cannot run application, %s", err)
 		}
 
-		want := fmt.Sprintf("10 %s", f.Name())
+		want := fmt.Sprintf("10 %s\n", f.Name())
 		got := buf.String()
 		if want != got {
 			t.Errorf("want '%s', got '%s'", want, got)
