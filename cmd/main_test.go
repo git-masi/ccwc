@@ -37,43 +37,48 @@ func TestMain(m *testing.M) {
 }
 
 func TestApp(t *testing.T) {
-	t.Run("num bytes", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-		defer cancel()
+	tt := []struct{ name, input, want, flag string }{
+		{"num bytes", "ten bytes!", "10", "-c"},
+	}
 
-		wd, err := os.Getwd()
-		if err != nil {
-			t.Fatal(err)
-		}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+			defer cancel()
 
-		f, err := os.CreateTemp(wd, "test_*.txt")
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer os.Remove(f.Name())
-		t.Logf("test file name, '%s'", f.Name())
+			wd, err := os.Getwd()
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		_, err = f.WriteString("ten bytes!")
-		if err != nil {
-			t.Fatal(err)
-		}
+			f, err := os.CreateTemp(wd, "test_*.txt")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer os.Remove(f.Name())
 
-		binaryPath := path.Join(wd, BINARY_NAME)
+			_, err = f.WriteString(tc.input)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		cmd := exec.CommandContext(ctx, binaryPath, "-c", f.Name())
+			binaryPath := path.Join(wd, BINARY_NAME)
 
-		buf := new(bytes.Buffer)
-		cmd.Stdout = buf
+			cmd := exec.CommandContext(ctx, binaryPath, tc.flag, f.Name())
 
-		err = cmd.Run()
-		if err != nil {
-			t.Fatalf("cannot run application, %s", err)
-		}
+			buf := new(bytes.Buffer)
+			cmd.Stdout = buf
 
-		want := fmt.Sprintf("10 %s\n", f.Name())
-		got := buf.String()
-		if want != got {
-			t.Errorf("want '%s', got '%s'", want, got)
-		}
-	})
+			err = cmd.Run()
+			if err != nil {
+				t.Fatalf("cannot run application, %s", err)
+			}
+
+			want := fmt.Sprintf("%s %s\n", tc.want, f.Name())
+			got := buf.String()
+			if want != got {
+				t.Errorf("want '%s', got '%s'", want, got)
+			}
+		})
+	}
 }
