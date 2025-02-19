@@ -5,11 +5,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
 	countBytes := flag.Bool("c", false, "Return the number of bytes in a file")
 	countLines := flag.Bool("l", false, "Return the number of lines in a file")
+	countWords := flag.Bool("w", false, "Return the number of words in a file")
 	flag.Parse()
 
 	if flag.NArg() == 0 {
@@ -42,6 +44,28 @@ func main() {
 
 		for scanner.Scan() {
 			count++
+		}
+
+		fmt.Printf("%d %s\n", count, pathToFile)
+	}
+
+	if *countWords {
+		file, err := os.Open(pathToFile)
+		if err != nil {
+			fmt.Printf("cannot open file, %s", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		count := 0
+
+		for scanner.Scan() {
+			for _, str := range strings.Fields(strings.TrimSpace(scanner.Text())) {
+				if str != "" {
+					count++
+				}
+			}
 		}
 
 		fmt.Printf("%d %s\n", count, pathToFile)
