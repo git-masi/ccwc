@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug word count",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/main.go",
+            "args": [
+                "-w",
+                "${workspaceFolder}/compare.txt"
+            ]
+        }
+    ]
+}
