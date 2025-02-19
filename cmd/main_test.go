@@ -40,6 +40,7 @@ func TestApp(t *testing.T) {
 	tt := []struct{ name, input, want, flag string }{
 		{"num bytes", "ten bytes!", "10", "-c"},
 		{"num lines", "line one\nline two\nline three", "3", "-l"},
+		{"num words", "This sentence has five words.", "5", "-w"},
 	}
 
 	for _, tc := range tt {
