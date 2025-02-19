@@ -39,6 +39,7 @@ func TestMain(m *testing.M) {
 func TestApp(t *testing.T) {
 	tt := []struct{ name, input, want, flag string }{
 		{"num bytes", "ten bytes!", "10", "-c"},
+		{"num lines", "line one\nline two\nline three", "3", "-l"},
 	}
 
 	for _, tc := range tt {
