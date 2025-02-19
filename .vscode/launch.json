@@ -2,14 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug word count",
+            "name": "Debug word count with active file",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/main.go",
             "args": [
                 "-w",
-                "${workspaceFolder}/compare.txt"
+                "${file}"
             ]
         }
     ]
