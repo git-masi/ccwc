@@ -41,6 +41,7 @@ func TestApp(t *testing.T) {
 		{"num bytes", "ten bytes!", "10", "-c"},
 		{"num lines", "line one\nline two\nline three", "3", "-l"},
 		{"num words", "This sentence has five words.", "5", "-w"},
+		{"zero words", "     ", "0", "-w"},
 	}
 
 	for _, tc := range tt {
