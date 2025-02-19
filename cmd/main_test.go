@@ -42,6 +42,7 @@ func TestApp(t *testing.T) {
 		{"num lines", "line one\nline two\nline three", "3", "-l"},
 		{"num words", "This sentence has five words.", "5", "-w"},
 		{"zero words", "     ", "0", "-w"},
+		{"six words", "B.C.	\n514	Accession of Ho Lu.\n", "6", "-w"},
 	}
 
 	for _, tc := range tt {
