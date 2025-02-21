@@ -38,11 +38,12 @@ func TestMain(m *testing.M) {
 
 func TestApp(t *testing.T) {
 	tt := []struct{ name, input, want, flag string }{
-		{"num bytes", "ten bytes!", "10", "-c"},
-		{"num lines", "line one\nline two\nline three", "3", "-l"},
-		{"num words", "This sentence has five words.", "5", "-w"},
-		{"zero words", "     ", "0", "-w"},
-		{"six words", "B.C.	\n514\tAccession of Ho Lu.\n", "6", "-w"},
+		{"count bytes", "ten bytes!", "10", "-c"},
+		{"count lines", "line one\nline two\nline three", "3", "-l"},
+		{"count words", "This sentence has five words.", "5", "-w"},
+		{"whitespace does not add to word count", "     ", "0", "-w"},
+		{"spaces, lines, and tabs, do not add to word count", "B.C.	\n514\tAccession of Ho Lu.\n", "6", "-w"},
+		{"count characters", "Project Gutenberg™", "18", "-m"},
 	}
 
 	for _, tc := range tt {
