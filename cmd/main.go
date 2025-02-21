@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"strings"
+	"unicode/utf8"
 )
 
 func main() {
@@ -96,20 +96,7 @@ func countCharacters(file *os.File) (int, error) {
 	count := 0
 
 	for scanner.Scan() {
-		r := bufio.NewReader(strings.NewReader(scanner.Text()))
-		for {
-			_, _, err := r.ReadRune()
-			if err != nil {
-				if err == io.EOF {
-					count++
-					break
-				}
-
-				return -1, err
-			}
-
-			count++
-		}
+		count += utf8.RuneCount(scanner.Bytes())
 	}
 
 	return count, nil
