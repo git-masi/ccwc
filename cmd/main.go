@@ -101,6 +101,7 @@ func countCharacters(file *os.File) (int, error) {
 			_, _, err := r.ReadRune()
 			if err != nil {
 				if err == io.EOF {
+					count++
 					break
 				}
 
