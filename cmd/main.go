@@ -81,23 +81,13 @@ func main() {
 		}
 		defer file.Close()
 
-		count, err := countCharacters(file)
-		if err != nil {
-			fmt.Printf("cannot count characters, %s", err)
-			os.Exit(1)
+		scanner := bufio.NewScanner(file)
+		count := 0
+
+		for scanner.Scan() {
+			count += utf8.RuneCount(scanner.Bytes())
 		}
 
 		fmt.Printf("%d %s\n", count, pathToFile)
 	}
-}
-
-func countCharacters(file *os.File) (int, error) {
-	scanner := bufio.NewScanner(file)
-	count := 0
-
-	for scanner.Scan() {
-		count += utf8.RuneCount(scanner.Bytes())
-	}
-
-	return count, nil
 }
