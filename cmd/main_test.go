@@ -44,6 +44,7 @@ func TestApp(t *testing.T) {
 		{"whitespace does not add to word count", "     ", "0", "-w"},
 		{"spaces, lines, and tabs, do not add to word count", "B.C.	\n514\tAccession of Ho Lu.\n", "6", "-w"},
 		{"count characters", "Project Gutenberg™", "18", "-m"},
+		{"default option with no flags set", "two lines six words\nthirty eight bytes", "2 7 38", ""},
 	}
 
 	for _, tc := range tt {
