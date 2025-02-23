@@ -24,70 +24,83 @@ func main() {
 	pathToFile := os.Args[len(os.Args)-1]
 
 	if *wantBytes {
-		info, err := os.Stat(pathToFile)
+		count, err := countBytes(pathToFile)
 		if err != nil {
 			fmt.Printf("cannot get file info, %s", err)
 			os.Exit(1)
 		}
 
-		fmt.Printf("%d %s\n", info.Size(), pathToFile)
+		fmt.Printf("%d %s\n", count, pathToFile)
 	}
 
+	file, err := os.Open(pathToFile)
+	if err != nil {
+		fmt.Printf("cannot open file, %s", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
 	if *wantLines {
-		file, err := os.Open(pathToFile)
-		if err != nil {
-			fmt.Printf("cannot open file, %s", err)
-			os.Exit(1)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		count := 0
-
-		for scanner.Scan() {
-			count++
-		}
+		count := countLines(file)
 
 		fmt.Printf("%d %s\n", count, pathToFile)
 	}
 
 	if *wantWords {
-		file, err := os.Open(pathToFile)
-		if err != nil {
-			fmt.Printf("cannot open file, %s", err)
-			os.Exit(1)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		count := 0
-
-		for scanner.Scan() {
-			for _, str := range strings.Fields(strings.TrimSpace(scanner.Text())) {
-				if str != "" {
-					count++
-				}
-			}
-		}
+		count := countWords(file)
 
 		fmt.Printf("%d %s\n", count, pathToFile)
 	}
 
 	if *wantCharacters {
-		file, err := os.Open(pathToFile)
-		if err != nil {
-			fmt.Printf("cannot open file, %s", err)
-			os.Exit(1)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		count := 0
-
-		for scanner.Scan() {
-			count += utf8.RuneCount(scanner.Bytes())
-		}
+		count := countCharacters(file)
 
 		fmt.Printf("%d %s\n", count, pathToFile)
 	}
+}
+
+func countBytes(pathToFile string) (int, error) {
+	info, err := os.Stat(pathToFile)
+	if err != nil {
+		return -1, err
+	}
+
+	return int(info.Size()), nil
+}
+
+func countLines(file *os.File) int {
+	scanner := bufio.NewScanner(file)
+	count := 0
+
+	for scanner.Scan() {
+		count++
+	}
+
+	return count
+}
+
+func countWords(file *os.File) int {
+	scanner := bufio.NewScanner(file)
+	count := 0
+
+	for scanner.Scan() {
+		for _, str := range strings.Fields(strings.TrimSpace(scanner.Text())) {
+			if str != "" {
+				count++
+			}
+		}
+	}
+
+	return count
+}
+
+func countCharacters(file *os.File) int {
+	scanner := bufio.NewScanner(file)
+	count := 0
+
+	for scanner.Scan() {
+		count += utf8.RuneCount(scanner.Bytes())
+	}
+
+	return count
 }
