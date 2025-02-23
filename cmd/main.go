@@ -23,16 +23,6 @@ func main() {
 
 	pathToFile := os.Args[len(os.Args)-1]
 
-	if *wantBytes {
-		count, err := countBytes(pathToFile)
-		if err != nil {
-			fmt.Printf("cannot get file info, %s", err)
-			os.Exit(1)
-		}
-
-		fmt.Printf("%d %s\n", count, pathToFile)
-	}
-
 	file, err := os.Open(pathToFile)
 	if err != nil {
 		fmt.Printf("cannot open file, %s", err)
@@ -40,32 +30,42 @@ func main() {
 	}
 	defer file.Close()
 
+	if *wantBytes {
+		count := countBytes(file)
+		fmt.Printf("%d %s\n", count, pathToFile)
+		return
+	}
+
 	if *wantLines {
 		count := countLines(file)
-
 		fmt.Printf("%d %s\n", count, pathToFile)
+		return
 	}
 
 	if *wantWords {
 		count := countWords(file)
-
 		fmt.Printf("%d %s\n", count, pathToFile)
+		return
 	}
 
 	if *wantCharacters {
 		count := countCharacters(file)
-
 		fmt.Printf("%d %s\n", count, pathToFile)
+		return
 	}
+
+	fmt.Printf("%d %d %d %s\n", countLines(file), countWords(file), countBytes(file), pathToFile)
 }
 
-func countBytes(pathToFile string) (int, error) {
-	info, err := os.Stat(pathToFile)
+func countBytes(file *os.File) int {
+	info, err := file.Stat()
 	if err != nil {
-		return -1, err
+		// Generally you'd want to return the error but for this trivial application we can just
+		// return a negative number which is a reasonable indication that something is wrong
+		return -1
 	}
 
-	return int(info.Size()), nil
+	return int(info.Size())
 }
 
 func countLines(file *os.File) int {
