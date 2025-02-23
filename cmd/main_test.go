@@ -17,7 +17,6 @@ const BINARY_NAME = "ccwc"
 
 func TestMain(m *testing.M) {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "go", "build", "-o", BINARY_NAME)
 
@@ -26,14 +25,16 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	defer func() {
-		err := os.Remove(BINARY_NAME)
-		if err != nil {
-			log.Fatalf("Error removing built binary: %v", err)
-		}
-	}()
+	exitCode := m.Run()
 
-	os.Exit(m.Run())
+	cancel()
+
+	err = os.Remove(BINARY_NAME)
+	if err != nil {
+		log.Fatalf("Error removing built binary: %v", err)
+	}
+
+	os.Exit(exitCode)
 }
 
 func TestApp(t *testing.T) {
@@ -67,6 +68,7 @@ func TestApp(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			f.Close()
 
 			binaryPath := path.Join(wd, BINARY_NAME)
 
