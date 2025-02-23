@@ -14,45 +14,61 @@ func main() {
 	wantCharacters := flag.Bool("m", false, "Return the number of characters in a file")
 	flag.Parse()
 
-	if flag.NArg() == 0 {
-		panic("missing path to fil")
+	fp := ""
+
+	if flag.NArg() > 0 {
+		fp = os.Args[len(os.Args)-1]
 	}
 
-	fp := os.Args[len(os.Args)-1]
+	getInput := initGetInput(fp)
 
 	if *wantBytes {
-		count := countBytes(fp)
+		count := countBytes(getInput)
 		fmt.Printf("%d %s\n", count, fp)
 		return
 	}
 
 	if *wantLines {
-		count := countLines(fp)
+		count := countLines(getInput)
 		fmt.Printf("%d %s\n", count, fp)
 		return
 	}
 
 	if *wantWords {
-		count := countWords(fp)
+		count := countWords(getInput)
 		fmt.Printf("%d %s\n", count, fp)
 		return
 	}
 
 	if *wantCharacters {
-		count := countCharacters(fp)
+		count := countCharacters(getInput)
 		fmt.Printf("%d %s\n", count, fp)
 		return
 	}
 
-	fmt.Printf("%d %d %d %s\n", countLines(fp), countWords(fp), countBytes(fp), fp)
+	fmt.Printf("%d %d %d %s\n", countLines(getInput), countWords(getInput), countBytes(getInput), fp)
 }
 
-func countBytes(fp string) int {
-	file, err := os.Open(fp)
-	if err != nil {
-		panic(fmt.Sprintf("cannot open file, %s", err))
+type inputGetter func() (file *os.File, close func() error)
+
+func initGetInput(fp string) inputGetter {
+	return func() (file *os.File, close func() error) {
+		if fp == "" {
+			return os.Stdin, func() error { return nil }
+		}
+
+		file, err := os.Open(fp)
+		if err != nil {
+			panic(fmt.Sprintf("cannot open file, %s", err))
+		}
+
+		return file, file.Close
 	}
-	defer file.Close()
+}
+
+func countBytes(getInput inputGetter) int {
+	file, close := getInput()
+	defer close()
 
 	info, err := file.Stat()
 	if err != nil {
@@ -64,12 +80,9 @@ func countBytes(fp string) int {
 	return int(info.Size())
 }
 
-func countLines(fp string) int {
-	file, err := os.Open(fp)
-	if err != nil {
-		panic(fmt.Sprintf("cannot open file, %s", err))
-	}
-	defer file.Close()
+func countLines(getInput inputGetter) int {
+	file, close := getInput()
+	defer close()
 
 	scanner := bufio.NewScanner(file)
 	count := 0
@@ -81,12 +94,9 @@ func countLines(fp string) int {
 	return count
 }
 
-func countWords(fp string) int {
-	file, err := os.Open(fp)
-	if err != nil {
-		panic(fmt.Sprintf("cannot open file, %s", err))
-	}
-	defer file.Close()
+func countWords(getInput inputGetter) int {
+	file, close := getInput()
+	defer close()
 
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanWords)
@@ -99,12 +109,9 @@ func countWords(fp string) int {
 	return count
 }
 
-func countCharacters(fp string) int {
-	file, err := os.Open(fp)
-	if err != nil {
-		panic(fmt.Sprintf("cannot open file, %s", err))
-	}
-	defer file.Close()
+func countCharacters(getInput inputGetter) int {
+	file, close := getInput()
+	defer close()
 
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanRunes)
